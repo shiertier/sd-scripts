@@ -16,21 +16,21 @@ logger = logging.getLogger(__name__)
 def main(args):
     assert not args.recursive or (
         args.recursive and args.full_path
-    ), "recursive requires full_path / recursiveはfull_pathと同時に指定してください"
+    ), "recursive(递归) 需要 full_path"
 
     train_data_dir_path = Path(args.train_data_dir)
     image_paths: List[Path] = train_util.glob_images_pathlib(train_data_dir_path, args.recursive)
-    logger.info(f"found {len(image_paths)} images.")
+    logger.info(f"找到 {len(image_paths)} 张图片.")
 
     if args.in_json is None and Path(args.out_json).is_file():
         args.in_json = args.out_json
 
     if args.in_json is not None:
-        logger.info(f"loading existing metadata: {args.in_json}")
+        logger.info(f"加载已存在 metadata: {args.in_json}")
         metadata = json.loads(Path(args.in_json).read_text(encoding="utf-8"))
-        logger.warning("captions for existing images will be overwritten / 既存の画像のキャプションは上書きされます")
+        logger.warning(" 请注意，您所做的更改将覆盖现有图片的描述。")
     else:
-        logger.info("new metadata will be created / 新しいメタデータファイルが作成されます")
+        logger.info("将会创建新的元数据")
         metadata = {}
 
     logger.info("merge caption texts to metadata json.")
@@ -49,41 +49,41 @@ def main(args):
         if args.debug:
             logger.info(f"{image_key} {caption}")
 
-    # metadataを書き出して終わり
-    logger.info(f"writing metadata: {args.out_json}")
+    # 写入metadata然后结束
+    logger.info(f"写入 元数据: {args.out_json}")
     Path(args.out_json).write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     logger.info("done!")
 
 
 def setup_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
-    parser.add_argument("train_data_dir", type=str, help="directory for train images / 学習画像データのディレクトリ")
-    parser.add_argument("out_json", type=str, help="metadata file to output / メタデータファイル書き出し先")
+    parser.add_argument("train_data_dir", type=str, help="训练图像的目录")
+    parser.add_argument("out_json", type=str, help="要输出的元数据文件")
     parser.add_argument(
         "--in_json",
         type=str,
-        help="metadata file to input (if omitted and out_json exists, existing out_json is read) / 読み込むメタデータファイル（省略時、out_jsonが存在すればそれを読み込む）",
+        help="要输入的元数据文件（如果省略，并且存在out_json，则读取现有的out_json）",
     )
     parser.add_argument(
         "--caption_extention",
         type=str,
         default=None,
-        help="extension of caption file (for backward compatibility) / 読み込むキャプションファイルの拡張子（スペルミスしていたのを残してあります）",
+        help="字幕文件的扩展名（为了向后兼容）",
     )
     parser.add_argument(
-        "--caption_extension", type=str, default=".caption", help="extension of caption file / 読み込むキャプションファイルの拡張子"
+        "--caption_extension", type=str, default=".caption", help="字幕文件的扩展名"
     )
     parser.add_argument(
         "--full_path",
         action="store_true",
-        help="use full path as image-key in metadata (supports multiple directories) / メタデータで画像キーをフルパスにする（複数の学習画像ディレクトリに対応）",
+        help="在元数据中使用完整路径作为图像键（支持多个目录）",
     )
     parser.add_argument(
         "--recursive",
         action="store_true",
-        help="recursively look for training tags in all child folders of train_data_dir / train_data_dirのすべての子フォルダにある学習タグを再帰的に探す",
+        help="递归地在train_data_dir的所有子文件夹中查找训练标签",
     )
-    parser.add_argument("--debug", action="store_true", help="debug mode")
+    parser.add_argument("--debug", action="store_true", help="debug 模式")
 
     return parser
 
@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # スペルミスしていたオプションを復元する
+    # 恢复拼写错误的选项
     if args.caption_extention is not None:
         args.caption_extension = args.caption_extention
 
